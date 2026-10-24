@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Smart Campus Eats</title>
+<style>
+:root{--green:#176b50;--bg:#f5f7f2;--ink:#202820;--muted:#70786f;--line:#e5e9e1;--orange:#f4a340}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font-family:Inter,Arial,sans-serif}
+button,input,select{font:inherit}button{cursor:pointer}
+header{background:#fff;border-bottom:1px solid var(--line);padding:16px 5%;display:flex;justify-content:space-between;align-items:center;gap:14px;flex-wrap:wrap}
+.brand{font-size:22px;font-weight:850;letter-spacing:-1px}.brand span{color:var(--green)}
+nav{display:flex;gap:8px;flex-wrap:wrap}nav button,.secondary{background:#fff;border:1px solid var(--line);border-radius:10px;padding:10px 14px}
+nav button.active,.primary{background:var(--green);color:#fff;border-color:var(--green)}
+main{max-width:1160px;margin:auto;padding:28px 18px 55px}.hero{background:#e4eee4;padding:30px;border-radius:22px;display:grid;grid-template-columns:1.4fr .6fr;gap:20px;align-items:center}
+.eyebrow{color:var(--green);text-transform:uppercase;letter-spacing:1.6px;font-size:11px;font-weight:800}
+h1{font-size:clamp(32px,5vw,49px);line-height:1.06;margin:12px 0;letter-spacing:-1.7px}h2{margin:0 0 8px}p{line-height:1.55}.muted{color:var(--muted)}.hero-art{font-size:86px;text-align:center}
+.searchbar{margin-top:20px;display:flex;gap:9px;flex-wrap:wrap}input,select{padding:12px;border:1px solid var(--line);border-radius:10px;background:white;min-width:0}#search{flex:1;min-width:180px}
+.primary{padding:11px 14px;border-radius:10px;border:0}.section-head{display:flex;justify-content:space-between;align-items:end;gap:12px;margin:30px 0 15px;flex-wrap:wrap}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:18px}.stat{background:#fff;border:1px solid var(--line);padding:16px;border-radius:14px}.stat strong{display:block;font-size:24px;margin-top:6px}
+.canteens{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:10px}.canteen{background:white;border:1px solid var(--line);border-radius:14px;padding:14px 10px;text-align:left}.canteen.selected{border:2px solid var(--green);background:#f0f7f0}.canteen .emoji{font-size:26px}.canteen strong{display:block;margin:7px 0 4px}.canteen small{color:var(--muted);line-height:1.4}
+.filters{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px}.chip{padding:8px 13px;border:1px solid var(--line);background:white;border-radius:25px}.chip.active{background:#dcebe0;border-color:#bad5c2;color:var(--green)}
+.menu-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px}.food-card{background:white;border:1px solid var(--line);border-radius:16px;padding:16px;display:flex;flex-direction:column;gap:10px}
+.food-top{display:flex;align-items:start;justify-content:space-between;gap:8px}.food-emoji{font-size:32px;background:#f7f3e9;border-radius:12px;padding:9px}.tag{font-size:11px;padding:6px 8px;border-radius:20px;background:#e6f4e8;color:#22663d;white-space:nowrap}.tag.sold{background:#fce9e5;color:#a23a2a}.tag.low{background:#fff1d8;color:#8a5900}
+.food-card h3{margin:0;font-size:18px}.food-card .muted{font-size:13px;margin:0}.food-bottom{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-top:auto}.price{font-size:21px;font-weight:800}.food-bottom button{border:0;border-radius:9px;padding:10px 12px}.food-bottom button:disabled{opacity:.45;cursor:not-allowed}
+.compare{background:#f5f8f2;border-radius:10px;padding:10px;font-size:12px;line-height:1.6}.empty{grid-column:1/-1;text-align:center;background:#fff;padding:30px;border-radius:15px}
+.panel{background:#fff;border:1px solid var(--line);padding:20px;border-radius:16px;margin-top:20px}.notice{background:#fff4dc;padding:12px 14px;border-radius:11px;font-size:13px}
+.rowline{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;padding:12px 0;border-bottom:1px solid var(--line)}.rowline:last-child{border-bottom:0}.rowline select{min-width:130px}.hidden{display:none!important}
+footer{text-align:center;padding:24px;color:var(--muted);font-size:12px}
+@media(max-width:820px){.canteens{grid-template-columns:repeat(3,1fr)}.menu-grid{grid-template-columns:repeat(2,1fr)}.hero{grid-template-columns:1fr}.hero-art{display:none}}
+@media(max-width:520px){header{padding:14px}.canteens{grid-template-columns:repeat(2,1fr)}.menu-grid{grid-template-columns:1fr}.hero{padding:22px}.stats{gap:7px}.stat{padding:11px;font-size:12px}.stat strong{font-size:20px}main{padding:18px 12px 40px}}
+</style>
+</head>
+<body>
+<header>
+  <div class="brand">campus<span>eats.</span></div>
+  <nav><button id="studentTab" class="active" onclick="showView('student')">🍴 Explore food</button><button id="staffTab" onclick="showView('staff')">⚙ Staff dashboard</button></nav>
+</header>
+<main>
+<section id="studentView">
+  <div class="hero"><div><div class="eyebrow">Your campus food guide</div><h1>Good food.<br>Less searching.</h1><p class="muted">Discover food across campus, compare prices, check availability and find options within your budget.</p>
+  <div class="searchbar"><input id="search" placeholder="Search fries, coffee, sandwich..." oninput="renderMenu()"><input id="budget" type="number" min="0" placeholder="Budget ₹" style="width:120px" oninput="renderMenu()"><button class="primary" onclick="renderMenu()">Find food ↗</button></div></div><div class="hero-art">🥪 🥤</div></div>
+  <div class="stats"><div class="stat"><span class="muted">Canteens</span><strong id="statCanteens">5</strong></div><div class="stat"><span class="muted">Available items</span><strong id="statAvailable">—</strong></div><div class="stat"><span class="muted">Items under ₹100</span><strong id="statBudget">—</strong></div></div>
+  <div class="section-head"><div><div class="eyebrow">Explore campus</div><h2>Choose a canteen</h2></div><button class="secondary" onclick="selectCanteen('all')">View all</button></div>
+  <div class="canteens" id="canteenList"></div>
+  <div class="section-head"><div><div class="eyebrow">The menu</div><h2 id="menuTitle">Food across campus</h2></div><select id="sort" onchange="renderMenu()"><option value="recommended">Recommended</option><option value="priceAsc">Price: low to high</option><option value="priceDesc">Price: high to low</option><option value="name">Name: A–Z</option></select></div>
+  <div class="filters" id="categoryFilters"><button class="chip active" onclick="selectCategory('All',this)">All food</button><button class="chip" onclick="selectCategory('Snacks',this)">Snacks</button><button class="chip" onclick="selectCategory('Meals',this)">Meals</button><button class="chip" onclick="selectCategory('Drinks',this)">Drinks</button><button class="chip" onclick="selectCategory('Desserts',this)">Desserts</button></div>
+  <div class="menu-grid" id="menuGrid"></div>
+  <div class="panel"><h2>Quick budget finder</h2><p class="muted">Set a budget above to filter the menu. The prices and menu items below are examples, not verified canteen prices.</p><button class="primary" onclick="document.getElementById('budget').value=100;renderMenu();window.scrollTo({top:0,behavior:'smooth'})">Show food under ₹100</button> <button class="secondary" onclick="clearFilters()">Clear filters</button></div>
+</section>
+<section id="staffView" class="hidden">
+  <div class="eyebrow">Demo management tools</div><h1 style="font-size:38px">Staff dashboard</h1><p class="muted">Change an item's availability and see the student menu update in this browser.</p>
+  <div class="notice">Prototype limitation: changes exist only in this page's memory and reset when you refresh. There is no shared database or staff login yet.</div>
+  <div class="stats"><div class="stat">Menu items<strong id="staffTotal">—</strong></div><div class="stat">Available<strong id="staffAvailable">—</strong></div><div class="stat">Sold out<strong id="staffSold">—</strong></div></div>
+  <div class="panel"><div class="section-head" style="margin-top:0"><h2>Manage availability</h2><select id="staffCanteen" onchange="renderStaff()"><option value="all">All canteens</option></select></div><div id="staffList"></div></div>
+  <div class="panel"><h2>What this prototype demonstrates</h2><p>✓ Search food across canteens</p><p>✓ Compare the same dish at different prices</p><p>✓ Filter by budget, category and availability</p><p>✓ Staff availability controls</p><p>✓ Layout that adapts to mobile and laptop screens</p><p class="muted">For a real multi-device app, the next step is a shared database and secure staff accounts.</p></div>
+</section>
+</main>
+<footer>campuseats. · Student project prototype · Sample menus and prices</footer>
+<script>
+// DEMO DATA: verify and replace prices/menu items before presenting.
+const canteens=[
+{id:"dannys",name:"Danny's",emoji:"🍟",note:"Known for fries & snacks"},
+{id:"sweetspot",name:"SweetSpot",emoji:"🥪",note:"Snacks and general food"},
+{id:"iceberg",name:"Iceberg",emoji:"🧋",note:"Drinks, bakes & desserts"},
+{id:"yogi",name:"Yogi",emoji:"🍛",note:"A variety of food"},
+{id:"lakeside",name:"Lakeside Canteen",emoji:"🌿",note:"Temporary name"}
+];
+let items=[
+{id:1,name:"French Fries",canteen:"dannys",price:80,category:"Snacks",emoji:"🍟",status:"Available"},
+{id:2,name:"Veg Sandwich",canteen:"dannys",price:70,category:"Snacks",emoji:"🥪",status:"Available"},
+{id:3,name:"Veg Burger",canteen:"dannys",price:100,category:"Snacks",emoji:"🍔",status:"Available"},
+{id:4,name:"Cheese Fries",canteen:"dannys",price:110,category:"Snacks",emoji:"🍟",status:"Low stock"},
+{id:5,name:"French Fries",canteen:"sweetspot",price:75,category:"Snacks",emoji:"🍟",status:"Available"},
+{id:6,name:"Grilled Sandwich",canteen:"sweetspot",price:90,category:"Snacks",emoji:"🥪",status:"Available"},
+{id:7,name:"Veg Wrap",canteen:"sweetspot",price:100,category:"Snacks",emoji:"🌯",status:"Available"},
+{id:8,name:"Pasta",canteen:"sweetspot",price:120,category:"Meals",emoji:"🍝",status:"Sold out"},
+{id:9,name:"Fresh Lime Juice",canteen:"iceberg",price:60,category:"Drinks",emoji:"🍋",status:"Available"},
+{id:10,name:"Cold Coffee",canteen:"iceberg",price:90,category:"Drinks",emoji:"🥤",status:"Available"},
+{id:11,name:"Chocolate Pastry",canteen:"iceberg",price:80,category:"Desserts",emoji:"🍰",status:"Available"},
+{id:12,name:"French Fries",canteen:"iceberg",price:85,category:"Snacks",emoji:"🍟",status:"Available"},
+{id:13,name:"Fruit Cake Slice",canteen:"iceberg",price:100,category:"Desserts",emoji:"🍰",status:"Available"},
+{id:14,name:"Veg Sandwich",canteen:"yogi",price:65,category:"Snacks",emoji:"🥪",status:"Available"},
+{id:15,name:"Veg Noodles",canteen:"yogi",price:100,category:"Meals",emoji:"🍜",status:"Available"},
+{id:16,name:"Masala Maggi",canteen:"yogi",price:70,category:"Snacks",emoji:"🍜",status:"Available"},
+{id:17,name:"Tea",canteen:"yogi",price:25,category:"Drinks",emoji:"☕",status:"Sold out"},
+{id:18,name:"French Fries",canteen:"yogi",price:70,category:"Snacks",emoji:"🍟",status:"Available"},
+{id:19,name:"Veg Puff",canteen:"lakeside",price:35,category:"Snacks",emoji:"🥐",status:"Available"},
+{id:20,name:"Cheese Sandwich",canteen:"lakeside",price:85,category:"Snacks",emoji:"🥪",status:"Available"},
+{id:21,name:"Cold Drink",canteen:"lakeside",price:40,category:"Drinks",emoji:"🥤",status:"Available"},
+{id:22,name:"Veg Meal",canteen:"lakeside",price:130,category:"Meals",emoji:"🍱",status:"Available"}
+];
+let chosenCanteen="all",chosenCategory="All";
+const getCanteen=id=>canteens.find(c=>c.id===id);
+const money=n=>"₹"+n;
+function showView(view){
+ document.getElementById("studentView").classList.toggle("hidden",view!=="student");
+ document.getElementById("staffView").classList.toggle("hidden",view!=="staff");
+ document.getElementById("studentTab").classList.toggle("active",view==="student");
+ document.getElementById("staffTab").classList.toggle("active",view==="staff");
+ view==="staff"?renderStaff():renderMenu();
+}
+function selectCanteen(id){chosenCanteen=id;renderCanteens();renderMenu();}
+function selectCategory(category,button){
+ chosenCategory=category;document.querySelectorAll("#categoryFilters .chip").forEach(b=>b.classList.remove("active"));button.classList.add("active");renderMenu();
+}
+function renderCanteens(){
+ document.getElementById("canteenList").innerHTML=canteens.map(c=>{
+ const count=items.filter(i=>i.canteen===c.id&&i.status!=="Sold out").length;
+ return `<button class="canteen ${chosenCanteen===c.id?"selected":""}" onclick="selectCanteen('${c.id}')"><span class="emoji">${c.emoji}</span><strong>${c.name}</strong><small>${c.note}<br>${count} available item(s)</small></button>`;
+ }).join("");
+}
+function renderMenu(){
+ const query=document.getElementById("search").value.trim().toLowerCase(),rawBudget=document.getElementById("budget").value;
+ const budget=rawBudget===""?Infinity:Math.max(0,Number(rawBudget));
+ let filtered=items.filter(i=>(chosenCanteen==="all"||i.canteen===chosenCanteen)&&(chosenCategory==="All"||i.category===chosenCategory)&&(i.name.toLowerCase().includes(query)||getCanteen(i.canteen).name.toLowerCase().includes(query))&&i.price<=budget);
+ const sort=document.getElementById("sort").value;
+ if(sort==="priceAsc")filtered.sort((a,b)=>a.price-b.price);
+ if(sort==="priceDesc")filtered.sort((a,b)=>b.price-a.price);
+ if(sort==="name")filtered.sort((a,b)=>a.name.localeCompare(b.name));
+ document.getElementById("menuTitle").textContent=chosenCanteen==="all"?"Food across campus":"Menu · "+getCanteen(chosenCanteen).name;
+ document.getElementById("statAvailable").textContent=items.filter(i=>i.status!=="Sold out").length;
+ document.getElementById("statBudget").textContent=items.filter(i=>i.status!=="Sold out"&&i.price<=100).length;
+ document.getElementById("statCanteens").textContent=canteens.length;
+ const grid=document.getElementById("menuGrid");
+ if(!filtered.length){grid.innerHTML='<div class="empty"><div style="font-size:35px">🔎</div><h3>No matching food found</h3><p class="muted">Try another search or increase your budget.</p><button class="secondary" onclick="clearFilters()">Clear filters</button></div>';return;}
+ grid.innerHTML=filtered.map(i=>{
+ const other=items.filter(x=>x.name.toLowerCase()===i.name.toLowerCase()&&x.canteen!==i.canteen);
+ const available=[i,...other].filter(x=>x.status!=="Sold out").sort((a,b)=>a.price-b.price),cheapest=available[0];
+ const cls=i.status==="Sold out"?"sold":i.status==="Low stock"?"low":"";
+ const compare=other.length?`<div class="compare">Also listed at ${other.length} other canteen(s). ${cheapest?`Lowest available listed price: <b>${money(cheapest.price)}</b> at ${getCanteen(cheapest.canteen).name}.`:"No location currently marked available."}</div>`:"";
+ return `<article class="food-card"><div class="food-top"><span class="food-emoji">${i.emoji}</span><span class="tag ${cls}">${i.status}</span></div><div><h3>${i.name}</h3><p class="muted">${getCanteen(i.canteen).name} · ${i.category}</p></div><div class="food-bottom"><span class="price">${money(i.price)}</span><button class="primary" ${i.status==="Sold out"?"disabled":""} onclick="showAlternatives(${i.id})">${i.status==="Sold out"?"Unavailable":"Compare"}</button></div>${compare}<div id="alternatives-${i.id}"></div></article>`;
+ }).join("");
+}
+function showAlternatives(id){
+ const item=items.find(i=>i.id===id),target=document.getElementById("alternatives-"+id);
+ const alternatives=items.filter(i=>i.name.toLowerCase()===item.name.toLowerCase()&&i.canteen!==item.canteen).sort((a,b)=>a.price-b.price);
+ target.innerHTML=alternatives.length?`<div class="compare"><b>Compare ${item.name}</b>${alternatives.map(a=>`<div style="margin-top:7px">${getCanteen(a.canteen).name}: <b>${money(a.price)}</b> · ${a.status}</div>`).join("")}</div>`:'<p class="muted">No other canteen has this exact dish in the sample menu.</p>';
+}
+function clearFilters(){
+ document.getElementById("search").value="";document.getElementById("budget").value="";chosenCanteen="all";chosenCategory="All";
+ document.querySelectorAll("#categoryFilters .chip").forEach((b,i)=>b.classList.toggle("active",i===0));renderCanteens();renderMenu();
+}
+function renderStaff(){
+ const select=document.getElementById("staffCanteen"),current=select.value||"all";
+ select.innerHTML='<option value="all">All canteens</option>'+canteens.map(c=>`<option value="${c.id}">${c.name}</option>`).join("");select.value=current;
+ const list=items.filter(i=>select.value==="all"||i.canteen===select.value);
+ document.getElementById("staffTotal").textContent=list.length;
+ document.getElementById("staffAvailable").textContent=list.filter(i=>i.status==="Available").length;
+ document.getElementById("staffSold").textContent=list.filter(i=>i.status==="Sold out").length;
+ document.getElementById("staffList").innerHTML=list.map(i=>`<div class="rowline"><div><strong>${i.emoji} ${i.name}</strong><div class="muted">${getCanteen(i.canteen).name} · ${money(i.price)}</div></div><select aria-label="Availability for ${i.name}" onchange="updateStatus(${i.id},this.value)">${["Available","Low stock","Sold out"].map(s=>`<option ${i.status===s?"selected":""}>${s}</option>`).join("")}</select></div>`).join("");
+}
+function updateStatus(id,status){items.find(i=>i.id===id).status=status;renderCanteens();renderMenu();renderStaff();}
+renderCanteens();renderMenu();renderStaff();
+</script>
+</body>
+</html>
